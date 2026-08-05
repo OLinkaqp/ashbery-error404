@@ -3,16 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Интерактивная обложка: параллакс, CRT-развёртка и цифровой глитч.">
-<!-- Для превью в Telegram замени URL ниже на адрес после публикации, например https://твой-сайт.netlify.app/cover.jpg -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="ASHBERY — ERROR 404">
-<meta property="og:description" content="Интерактивная обложка: параллакс, CRT-развёртка и цифровой глитч.">
-<meta property="og:url" content="https://olinkaqp.github.io/ashbery-error404/">
-<meta property="og:image" content="https://olinkaqp.github.io/ashbery-error404/cover.jpg">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ASHBERY — ERROR 404">
-<meta name="twitter:image" content="https://olinkaqp.github.io/ashbery-error404/cover.jpg">
 <title>ASHBERY — ERROR 404</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -104,7 +94,7 @@
 
   /* ---- HUD log ---- */
   .log{
-    position:absolute; left:5%; bottom:9%; z-index:4;
+    position:absolute; left:14px; bottom:76px; z-index:4;
     font-size:clamp(8px,1.55vh,12px); line-height:1.55;
     color:rgba(190,232,255,.72); text-shadow:0 0 8px rgba(90,180,255,.55);
     pointer-events:none; letter-spacing:.04em; max-width:70%;
@@ -121,10 +111,9 @@
     padding:8px 10px; border-radius:10px;
     background:rgba(4,10,18,.55); backdrop-filter:blur(9px);
     border:1px solid rgba(143,216,255,.16);
-    opacity:0; pointer-events:none; transform:translateX(-50%) translateY(8px);
-    transition:opacity .4s ease, transform .4s ease; max-width:calc(100% - 20px);
+    opacity:.3; transition:opacity .35s ease; max-width:calc(100% - 20px);
   }
-  .dock.show, .dock:focus-within{opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0)}
+  .stage:hover .dock, .dock:focus-within, .dock.awake{opacity:1}
   .dock button{
     font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
     color:rgba(214,238,255,.85); background:transparent;
@@ -174,10 +163,10 @@
     <div class="edge"><span></span><span></span><span></span><span></span></div>
 
     <div class="log" id="log"></div>
-    <div class="hint" id="hint">движение — зонд · клик — сбой · панель внизу</div>
+    <div class="hint" id="hint">движение — зонд · клик — сбой</div>
 
     <div class="dock" id="dock">
-      <label>Глитч <input id="amt" type="range" min="0" max="100" value="20" aria-label="Сила глитча"></label>
+      <label>Глитч <input id="amt" type="range" min="0" max="100" value="38" aria-label="Сила глитча"></label>
       <button id="bCrt" aria-pressed="true">CRT</button>
       <button id="bLens" aria-pressed="true">Зонд</button>
       <button id="bRestore" class="warn">Восстановить сигнал</button>
@@ -209,7 +198,7 @@
 
   // ---------- state ----------
   var S = {
-    amt: 0.20,          // user glitch level
+    amt: 0.38,          // user glitch level
     burst: 0,           // transient corruption
     lensOn: true,
     lensK: 0,           // 0..1 lens presence
@@ -572,25 +561,10 @@
     S.lastInput = performance.now();
     fadeHint();
   }
-  var dockTimer = 0;
-  function summonDock(show){
-    if (show){
-      dock.classList.add('show');
-      clearTimeout(dockTimer);
-      dockTimer = setTimeout(function(){ dock.classList.remove('show'); }, 2600);
-    }
-  }
-  dock.addEventListener('pointerenter', function(){ clearTimeout(dockTimer); dock.classList.add('show'); });
-  dock.addEventListener('pointerleave', function(){ summonDock(true); });
-
-  frameEl.addEventListener('pointermove', function(ev){
-    pointFrom(ev.clientX, ev.clientY);
-    if (S.ly > 0.80) summonDock(true);
-  });
+  frameEl.addEventListener('pointermove', function(ev){ pointFrom(ev.clientX, ev.clientY); });
   frameEl.addEventListener('pointerleave', function(){ S.lastInput = performance.now() - 2400; });
   frameEl.addEventListener('pointerdown', function(ev){
     pointFrom(ev.clientX, ev.clientY);
-    if (S.ly > 0.72) summonDock(true);
     S.burst = 0.75; pushLine('> SIGNAL DISRUPTED @ ' + Math.round(S.lx*100) + '/' + Math.round(S.ly*100));
   });
   window.addEventListener('deviceorientation', function(ev){
